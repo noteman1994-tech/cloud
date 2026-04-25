@@ -284,7 +284,7 @@ func TestAPIContracts(t *testing.T) {
 			name: "GET /api/v1/groups/available",
 			setup: func(t *testing.T, deps *contractDeps) {
 				t.Helper()
-				// 普通用户可见的分组列表不应包含内部字段（如 model_routing/account_count）。
+				// Public group list should not expose internal-only fields.
 				deps.groupRepo.SetActive([]service.Group{
 					{
 						ID:                  10,
@@ -345,14 +345,14 @@ func TestAPIContracts(t *testing.T) {
 			name: "GET /api/v1/subscriptions",
 			setup: func(t *testing.T, deps *contractDeps) {
 				t.Helper()
-				// 普通用户订阅接口不应包含 assigned_* / notes 等管理员字段。
+				// User subscription payload should not expose admin-only fields.
 				deps.userSubRepo.SetByUserID(1, []service.UserSubscription{
 					{
 						ID:              501,
 						UserID:          1,
 						GroupID:         10,
 						StartsAt:        deps.now,
-						ExpiresAt:       time.Date(2099, 1, 2, 3, 4, 5, 0, time.UTC), // 使用未来日期避免 normalizeSubscriptionStatus 标记为过期
+						ExpiresAt:       time.Date(2099, 1, 2, 3, 4, 5, 0, time.UTC), // Use a future date to keep status active.
 						Status:          service.SubscriptionStatusActive,
 						DailyUsageUSD:   1.23,
 						WeeklyUsageUSD:  2.34,
@@ -395,7 +395,7 @@ func TestAPIContracts(t *testing.T) {
 			name: "GET /api/v1/redeem/history",
 			setup: func(t *testing.T, deps *contractDeps) {
 				t.Helper()
-				// 普通用户兑换历史不应包含 notes 等内部字段。
+				// Redeem history should not expose internal notes.
 				deps.redeemRepo.SetByUser(1, []service.RedeemCode{
 					{
 						ID:        900,
@@ -686,7 +686,7 @@ func TestAPIContracts(t *testing.T) {
 						"ops_realtime_monitoring_enabled": true,
 						"ops_query_mode_default": "auto",
 						"ops_metrics_interval_seconds": 60,
-						"site_name": "Sub2API",
+						"site_name": "cloud",
 						"site_logo": "",
 						"site_subtitle": "Subtitle",
 						"api_base_url": "https://api.example.com",
@@ -876,12 +876,12 @@ func TestAPIContracts(t *testing.T) {
 					"oidc_connect_userinfo_email_path": "",
 					"oidc_connect_userinfo_id_path": "",
 					"oidc_connect_userinfo_username_path": "",
-					"site_name": "Sub2API",
+					"site_name": "cloud",
 					"site_logo": "",
-					"site_subtitle": "Subscription to API Conversion Platform",
+					"site_subtitle": "AI API Gateway Platform",
 					"api_base_url": "",
 					"contact_info": "",
-					"doc_url": "",
+					"doc_url": "https://www.feishu.cn/",
 					"home_content": "",
 					"hide_ccs_import_button": false,
 					"purchase_subscription_enabled": false,
@@ -2386,3 +2386,4 @@ var (
 	_ service.UsageLogRepository         = (*stubUsageLogRepo)(nil)
 	_ service.SettingRepository          = (*stubSettingRepo)(nil)
 )
+
